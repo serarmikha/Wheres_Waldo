@@ -58,11 +58,11 @@ int main(void)
 	Mat imgCopy;		//copy of image
 	Mat	imgFiltered;	//filtered image
 	Mat imgTemplate;			//template image
-	Mat imgTemplateFiltered	//filtered template
+	Mat imgTemplateFiltered;	//filtered template
 
 	createTrackbars();
-	while (1)
-	{
+	//while (1)
+	//{
 		//open image
 		imgOriginal = imread("waldo.jpg");
 		imgTemplate = imread("template.jpg");
@@ -85,19 +85,34 @@ int main(void)
 		inRange(imgCopy, Scalar(H_MIN, S_MIN, V_MIN), Scalar(H_MAX, S_MAX, V_MAX), imgFiltered);
 		inRange(imgTemplateFiltered, Scalar(H_MIN, S_MIN, V_MIN), Scalar(H_MAX, S_MAX, V_MAX), imgTemplateFiltered);
 
-		namedWindow("imgOriginal", CV_WINDOW_NORMAL);
+		/*namedWindow("imgOriginal", CV_WINDOW_NORMAL);
 		namedWindow("imgFiltered", CV_WINDOW_NORMAL);
 
 		imshow("imgOriginal", imgOriginal);
-		imshow("imgFiltered", imgFiltered);
+		imshow("imgFiltered", imgFiltered);*/
 
-		waitKey(30);
-	}
+	//	waitKey(30);
+//	}
 
 	int cols = imgFiltered.cols - imgTemplateFiltered.cols - 1;
 	int rows = imgFiltered.rows - imgTemplateFiltered.rows - 1;
 
-	matchTemplate(imgFiltered,imgTemplateFiltered,  )
+	Point matchedLocation;
+	double minVal; double maxVal; Point minLoc; Point maxLoc;
+	Mat result;
+	result.create(rows, cols, CV_32FC1);	
 
+	matchTemplate(imgFiltered, imgTemplateFiltered, result, CV_TM_SQDIFF);
+	normalize(result, result, 0, 1, NORM_MINMAX, -1, Mat());
+	minMaxLoc(result, &minVal, &maxVal, &minLoc, &maxLoc, Mat());
+	matchedLocation = minLoc;
+
+	rectangle(imgOriginal, matchedLocation, Point(matchedLocation.x + imgTemplateFiltered.cols, matchedLocation.y + imgTemplateFiltered.rows), Scalar::all(0), 2, 8, 0);
+	rectangle(result, matchedLocation, Point(matchedLocation.x + imgTemplateFiltered.cols, matchedLocation.y + imgTemplateFiltered.rows), Scalar::all(255), 2, 8, 0);
+
+	imshow("original", imgOriginal);
+	imshow("result", result);
+
+	waitKey(0);
 	return 0;
 }
